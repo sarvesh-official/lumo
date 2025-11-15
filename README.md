@@ -91,4 +91,4 @@ This project is licensed under the **MIT License**.
 
 ---
 
-> *Lumo — making science learning smarter, faster, and more
+> *Lumo — making science learning smarter, faster, and more interactive.
