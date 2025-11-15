@@ -52,11 +52,6 @@ The app uses Next.js API routes for backend logic, OpenAI Chat API for generatio
 
 ---
 
-> *Lumo — a focused, persistent AI tutor experience that makes science revision fast and practical.*
-
-
----
-
 ## ⚙️ Installation & Setup
 
 ### 1️⃣ Clone the repository
