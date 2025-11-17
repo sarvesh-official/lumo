@@ -14,20 +14,41 @@ export const connectDB = async () => {
 };
 
 
-// ------ Chat Helpers
-
-
-export async function saveChatToDb(userId: string, messages: UIMessage[]) {
+export async function saveChatToDb(userId: string, messages: UIMessage[], chatId?: string, title?: string) {
 
   try {
 
     await connectDB();
-    const chat = await Chat.create({ userId, messages })
-
-    return chat;
+    
+    if (chatId) {
+      const chat = await Chat.findByIdAndUpdate(
+        chatId,
+        { messages },
+        { new: true }
+      );
+      return chat;
+    } else {
+      const chat = await Chat.create({ 
+        userId, 
+        messages, 
+        title: title || "New Chat" 
+      });
+      return chat;
+    }
 
   } catch (error) {
     console.error("Error saving chat to DB:", error);
+    throw error;
+  }
+}
+
+export async function getChatById(chatId: string) {
+  try {
+    await connectDB();
+    const chat = await Chat.findById(chatId);
+    return chat;
+  } catch (error) {
+    console.error("Error fetching chat by ID:", error);
     throw error;
   }
 }
@@ -49,7 +70,6 @@ export async function getUserChat(userId: string) {
 }
 
 
-// ------- Flashcard Helpers
 
 export async function saveFlashcardsToDB({userId, chatId, cards} : FlashcardData) {
   

@@ -1,6 +1,6 @@
 import {auth} from "@clerk/nextjs/server";
 import { openai } from "@ai-sdk/openai";
-import {convertToModelMessages, streamText, UIMessage, generateId} from "ai";
+import {convertToModelMessages, streamText, UIMessage, generateId, stepCountIs} from "ai";
 import { saveChatToDb, saveFlashcardsToDB } from "@/src/lib/db";
 import { z } from "zod";
 import mongoose from "mongoose";
@@ -13,12 +13,15 @@ export async function POST(req: Request) {
         
         if(!userId) return new Response("Unauthorized", {status: 401});
         
-        const {messages, chatId} : {messages : UIMessage[], chatId?: string} = await req.json();
+        const body = await req.json();
+        const messages: UIMessage[] = body.messages || [];
+        const chatId: string | undefined = body.chatId;
         
         const response = await streamText({
             model: openai('gpt-4'),
             messages: convertToModelMessages(messages),
-            system: "You are a friendly and knowledgeable science tutor who explains concepts clearly. When users ask you to create flashcards from the conversation, use the generateFlashcards tool.",
+            system: "You are a friendly and knowledgeable science tutor who explains concepts clearly. When users ask you to create flashcards from the conversation, use the generateFlashcards tool. After creating flashcards, always confirm to the user that the flashcards have been generated and saved.",
+            stopWhen: stepCountIs(5),
             tools: {
                 generateFlashcards: {
                     description: "Generate flashcards based on the conversation. Use this when the user asks to create flashcards, make flashcards, or generate study cards from the chat.",
@@ -59,7 +62,7 @@ export async function POST(req: Request) {
                     parts: [{ type: 'text', text }]
                 };
                 const updatedMessages = [...messages, assistantMessage];
-                await saveChatToDb(userId, updatedMessages).catch((err) => {
+                await saveChatToDb(userId, updatedMessages, chatId).catch((err) => {
                     console.log(err);
                 });
             }
