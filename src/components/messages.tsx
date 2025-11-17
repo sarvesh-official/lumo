@@ -81,9 +81,9 @@ function PureMessages({
             <div className="flex items-center justify-center size-12 rounded-full bg-primary/10 mb-4">
               <MessageSquare className="h-6 w-6 text-primary" />
             </div>
-            <h2 className="text-xl font-semibold text-foreground">Welcome!</h2>
-            <p className="text-muted-foreground mt-2">This is the beginning of the conversation.</p>
-            <p className="text-muted-foreground">Send a message to start chatting.</p>
+            <h2 className="text-xl font-semibold text-foreground">No messages yet</h2>
+            <p className="text-muted-foreground mt-2">Start a new conversation to get help or ask a question.</p>
+            <p className="text-muted-foreground">Type your message below to begin.</p>
           </div>
         )}
 
