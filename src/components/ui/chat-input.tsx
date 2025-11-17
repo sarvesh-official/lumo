@@ -92,7 +92,7 @@ export function ChatInput({ onSend, isDisabled = false }: ChatInputProps) {
           autoFocus
         />
 
-        <div className="absolute bottom-0 p-2 w-fit flex flex-row justify-start">
+        {/* <div className="absolute bottom-0 p-2 w-fit flex flex-row justify-start">
           <Button 
             type="button" 
             className="rounded-md rounded-bl-lg p-[7px] h-fit border-input hover:bg-accent hover:text-accent-foreground"
@@ -102,7 +102,7 @@ export function ChatInput({ onSend, isDisabled = false }: ChatInputProps) {
           >
             <PaperclipIcon className="h-4 w-4" />
           </Button>
-        </div>
+        </div> */}
 
         <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-row justify-end">
           <Button 
