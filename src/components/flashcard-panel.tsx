@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
 import { motion } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, Shuffle } from 'lucide-react';
 import { Button } from './ui/button';
@@ -16,7 +16,12 @@ interface FlashcardPanelProps {
   onClose: () => void;
 }
 
-export function FlashcardPanel({ chatId, isOpen, onClose }: FlashcardPanelProps) {
+export interface FlashcardPanelRef {
+  refresh: () => Promise<void>;
+  hasCards: boolean;
+}
+
+export const FlashcardPanel = forwardRef<FlashcardPanelRef, FlashcardPanelProps>(({ chatId, isOpen, onClose }, ref) => {
   const [cards, setCards] = useState<Card[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -36,6 +41,11 @@ export function FlashcardPanel({ chatId, isOpen, onClose }: FlashcardPanelProps)
       setIsLoading(false);
     }
   }, [chatId]);
+
+  useImperativeHandle(ref, () => ({
+    refresh: fetchFlashcards,
+    hasCards: cards.length > 0
+  }), [fetchFlashcards, cards.length]);
 
   useEffect(() => {
     if (isOpen && chatId) {
@@ -161,4 +171,4 @@ export function FlashcardPanel({ chatId, isOpen, onClose }: FlashcardPanelProps)
       </div>
     </motion.div>
   );
-}
+});

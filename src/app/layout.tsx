@@ -5,6 +5,7 @@ import { ThemeProvider } from '../components/theme-provider'
 import { TooltipProvider } from '../components/ui/tooltip';
 import { ClerkProvider } from '@clerk/nextjs'
 import { Toaster } from 'sonner';
+import { ChatProvider } from '../lib/chat-context';
 
 export const metadata: Metadata = {
   title: 'Lumo',
@@ -75,7 +76,9 @@ export default function RootLayout({
           >
             <TooltipProvider>
               <Toaster position="top-center" />
-              {children}
+              <ChatProvider>
+                {children}
+              </ChatProvider>
             </TooltipProvider>
           </ThemeProvider>
         </ClerkProvider>

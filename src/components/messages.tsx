@@ -10,7 +10,6 @@ import { UIMessage } from 'ai';
 interface MessagesProps {
   messages: UIMessage[];
   isTyping?: boolean;
-  roomName?: string;
   isPrivate?: boolean;
   chatId?: string;
 }
@@ -18,7 +17,6 @@ interface MessagesProps {
 function PureMessages({
   messages,
   isTyping = false,
-  roomName = 'General',
 }: MessagesProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);

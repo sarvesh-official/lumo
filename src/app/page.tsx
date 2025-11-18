@@ -1,46 +1,23 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { SidebarProvider } from '../components/ui/sidebar';
 import { AppSidebar } from '../components/app-sidebar';
 import { ChatHeader } from '../components/chat-header';
 import { Messages } from '../components/messages';
 import { ChatInput } from '../components/ui/chat-input';
-import { useRouter } from 'next/navigation';
+import { generateChatId } from '../lib/utils';
 
 export default function Chat() {
   const [isCreating, setIsCreating] = useState(false);
   const router = useRouter();
-  
+
   const handleSend = async (text: string) => {
     if (isCreating) return;
-    
     setIsCreating(true);
     try {
-
-      const titleRes = await fetch('/api/chat/title', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text })
-      });
-      
-      if (!titleRes.ok) throw new Error('Failed to generate title');
-      
-      const { title } = await titleRes.json();
-      
- 
-      const chatRes = await fetch('/api/chat/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          title
-        })
-      });
-      
-      if (!chatRes.ok) throw new Error('Failed to create chat');
-      
-      const { chatId } = await chatRes.json();
-      
+      const chatId = generateChatId();
       router.push(`/chat/${chatId}?initialMessage=${encodeURIComponent(text)}`);
     } catch (error) {
       console.error('Failed to create chat:', error);

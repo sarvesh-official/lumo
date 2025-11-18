@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { getChatById } from "@/src/lib/db";
+import mongoose from "mongoose";
 
 export async function GET(
   req: Request,
@@ -13,6 +14,11 @@ export async function GET(
     }
     
     const { id } = await params;
+    
+    if (!mongoose.isValidObjectId(id)) {
+      return new Response("Invalid chat ID format", { status: 400 });
+    }
+    
     const chat = await getChatById(id);
     
     if (!chat) {

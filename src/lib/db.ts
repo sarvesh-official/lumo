@@ -17,21 +17,19 @@ export const connectDB = async () => {
 export async function saveChatToDb(userId: string, messages: UIMessage[], chatId?: string, title?: string) {
 
   try {
-
     await connectDB();
-    
     if (chatId) {
       const chat = await Chat.findByIdAndUpdate(
         chatId,
-        { messages },
-        { new: true }
+        { userId, messages, title: title || "New Chat" },
+        { new: true, upsert: true, setDefaultsOnInsert: true }
       );
       return chat;
     } else {
-      const chat = await Chat.create({ 
-        userId, 
-        messages, 
-        title: title || "New Chat" 
+      const chat = await Chat.create({
+        userId,
+        messages,
+        title: title || "New Chat"
       });
       return chat;
     }

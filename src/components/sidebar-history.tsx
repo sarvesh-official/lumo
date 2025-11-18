@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { LoaderIcon } from 'lucide-react'
+import { LoaderIcon, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, useSidebar } from '../components/ui/sidebar'
 import { ChatItem } from './app-sidebar'
+import { usePathname } from 'next/navigation'
+import { useChatContext } from '../lib/chat-context'
 
 interface ChatData {
   _id: string
@@ -17,10 +19,16 @@ export function SidebarHistory() {
   const { setOpenMobile } = useSidebar()
   const [isLoading, setIsLoading] = useState(true)
   const [chats, setChats] = useState<ChatData[]>([])
+  const pathname = usePathname()
+  const [refreshKey, setRefreshKey] = useState(0)
+  const { lastRefresh } = useChatContext()
 
   const getHistory = async () => {
     try {
-      const res = await fetch('/api/history', { credentials: 'include' })
+      const res = await fetch('/api/history', { 
+        credentials: 'include',
+        headers: { 'Cache-Control': 'no-cache' } 
+      })
       if (!res.ok) throw new Error('Failed to fetch history')
       const data = await res.json()
       return data.chats as ChatData[]
@@ -31,19 +39,31 @@ export function SidebarHistory() {
     }
   }
 
+  const refreshHistory = async () => {
+    setIsLoading(true)
+    const data = await getHistory()
+    setChats(data)
+    setIsLoading(false)
+  }
+
   useEffect(() => {
-    const fetchChats = async () => {
-      setIsLoading(true)
-      const data = await getHistory()
-      setChats(data)
-      setIsLoading(false)
-    }
-    fetchChats()
-  }, [])
+    refreshHistory()
+  }, [pathname, refreshKey, lastRefresh])
 
   return (
     <SidebarGroup>
       <SidebarGroupContent>
+        <div className="flex justify-between items-center px-2 py-1 mb-2">
+          <span className="text-sm font-medium">Recent Chats</span>
+          <button 
+            onClick={() => setRefreshKey(prev => prev + 1)} 
+            className="p-1 rounded-md hover:bg-sidebar-accent text-muted-foreground hover:text-sidebar-foreground"
+            disabled={isLoading}
+            title="Refresh chat history"
+          >
+            <RefreshCw className={`size-4 ${isLoading ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
         <SidebarMenu>
           <div className="flex flex-col gap-3">
             {chats.map((chat) => {
@@ -52,11 +72,14 @@ export function SidebarHistory() {
                   key={chat._id}
                   id={chat._id}
                   name={chat.title || 'New chat'}
-                  active={false}
+                  active={pathname?.includes(chat._id) || false}
                   onClick={() => setOpenMobile(false)}
                 />
               )
             })}
+            {chats.length === 0 && !isLoading && (
+              <div className="text-sm text-muted-foreground p-2">No chats yet</div>
+            )}
           </div>
         </SidebarMenu>
       </SidebarGroupContent>

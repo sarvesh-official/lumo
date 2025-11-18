@@ -15,20 +15,33 @@ export async function GET(
 
     const { chatId } = await params;
     
+   
+    if (!mongoose.isValidObjectId(chatId)) {
+      return Response.json({ error: "Invalid chat ID format" }, { status: 400 });
+    }
+    
     await connectDB();
 
-    const flashcards = await Flashcard.find({
-      userId,
-      chatId: new mongoose.Types.ObjectId(chatId),
-    }).sort({ createdAt: -1 });
+    try {
+      const flashcards = await Flashcard.find({
+        userId,
+        chatId: new mongoose.Types.ObjectId(chatId),
+      }).sort({ createdAt: -1 });
 
-    const allCards = flashcards.flatMap((fc) => fc.cards);
+      const allCards = flashcards.flatMap((fc) => fc.cards);
 
-    return Response.json({ cards: allCards });
+      return Response.json({ cards: allCards });
+    } catch (conversionError) {
+      console.error("Error with ObjectId conversion:", conversionError);
+      return Response.json(
+        { error: "Invalid chat ID format" },
+        { status: 400 }
+      );
+    }
   } catch (error) {
-    console.error("Error fetching flashcards:", error);
+    console.error("Error with GET request:", error);
     return Response.json(
-      { error: "Failed to fetch flashcards" },
+      { error: "Failed to process GET request" },
       { status: 500 }
     );
   }

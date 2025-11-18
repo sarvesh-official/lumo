@@ -33,7 +33,13 @@ export async function POST(req: Request) {
                     }),
                     execute: async ({ cards }) => {
                         try {
-                            const flashcardChatId = chatId ? new mongoose.Types.ObjectId(chatId) : new mongoose.Types.ObjectId();
+                            let flashcardChatId;
+                            try {
+                                flashcardChatId = chatId ? new mongoose.Types.ObjectId(chatId) : new mongoose.Types.ObjectId();
+                            } catch (err) {
+                                console.error('Invalid ObjectId format:', err);
+                                flashcardChatId = new mongoose.Types.ObjectId();
+                            }
                             await saveFlashcardsToDB({ 
                                 userId, 
                                 chatId: flashcardChatId, 
